@@ -1,32 +1,6 @@
 name: Cluster IT - 1C3D
 
 on:
-  push:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  pull_request:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-      - "force_ci/**"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  # allow manually run the action:
   workflow_dispatch:
 
 concurrency:
@@ -44,7 +18,9 @@ jobs:
       fail-fast: false
       max-parallel: 20
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
     runs-on: [self-hosted, iotdb]
     #      group: self-hosted
     #      labels: iotdb
@@ -69,7 +45,7 @@ jobs:
           -pl integration-test \
           -am -PClusterIT
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-java${{ matrix.java }}-${{ runner.os }}

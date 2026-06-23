@@ -6,29 +6,6 @@ name: C++ Client package
 
 on:
   workflow_dispatch:
-    inputs:
-      variants:
-        description: "Which packages to build"
-        required: false
-        default: all
-        type: choice
-        options:
-          - all
-          - linux
-          - macos
-          - windows
-          - windows-vs2017
-          - windows-vs2019
-          - windows-vs2022
-          - windows-vs2026
-  release:
-    types: [published]
-  push:
-    branches:
-      - "rc/**"
-    tags:
-      - "v*"
-
 concurrency:
   group: client-cpp-package-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -288,7 +265,7 @@ jobs:
   package-macos:
     name: Package (${{ matrix.name }})
     needs: [should-package, resolve-matrix]
-    if: needs.should-package.outputs.run == 'true' && needs.resolve-matrix.outputs.run_macos == 'true'
+    if: always()
     strategy:
       fail-fast: false
       matrix:
@@ -297,6 +274,9 @@ jobs:
             runs-on: macos-15-intel
           - name: macos-arm64
             runs-on: macos-latest
+        java:
+          - 21
+          - 25
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v5
@@ -304,7 +284,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "${{ matrix.java }}"
       - name: Install C++ dependencies (macOS)
         shell: bash
         run: |
@@ -389,11 +369,14 @@ jobs:
   package-windows:
     name: Package (${{ matrix.name }})
     needs: [should-package, resolve-matrix]
-    if: needs.should-package.outputs.run == 'true' && needs.resolve-matrix.outputs.run_windows == 'true'
+    if: always()
     strategy:
       fail-fast: false
       matrix:
         include: ${{ fromJSON(needs.resolve-matrix.outputs.windows_matrix) }}
+        java:
+          - 21
+          - 25
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v5
@@ -401,9 +384,9 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "${{ matrix.java }}"
       - name: Install Visual Studio Build Tools (${{ matrix.name }})
-        if: matrix.vs_choco != ''
+        if: always()
         shell: pwsh
         run: |
           $params = '${{ matrix.vs_choco_params }}'

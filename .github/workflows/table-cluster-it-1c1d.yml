@@ -1,32 +1,6 @@
 name: Table Cluster IT - 1C1D
 
 on:
-  push:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  pull_request:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-      - "force_ci/**"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  # allow manually run the action:
   workflow_dispatch:
 
 concurrency:
@@ -49,7 +23,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
@@ -71,7 +45,7 @@ jobs:
           -pl integration-test \
           -am -PTableSimpleIT
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: table-standalone-log-Linux
@@ -79,11 +53,20 @@ jobs:
           retention-days: 1
 
   # Windows is ~67% slower than Ubuntu, so split into 3 shards to parallelize
+    strategy:
+      matrix:
+        java:
+          - 21
+          - 25
+      fail-fast: false
   Windows:
     strategy:
       fail-fast: false
       matrix:
         shard: [0, 1, 2]
+        java:
+          - 21
+          - 25
     runs-on: windows-latest
 
     steps:
@@ -92,7 +75,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
@@ -140,7 +123,7 @@ jobs:
           -pl integration-test \
           -am -PTableSimpleIT
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: table-standalone-log-Windows-shard${{ matrix.shard }}

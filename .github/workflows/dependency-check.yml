@@ -3,32 +3,6 @@
 name: Dependency Check
 
 on:
-  push:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  pull_request:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-      - "force_ci/**"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  # allow manually run the action:
   workflow_dispatch:
 
 concurrency:
@@ -46,7 +20,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 

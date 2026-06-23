@@ -1,34 +1,6 @@
 name: Multi-Cluster IT
 
 on:
-  push:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-      - "iotdb-core/datanode/src/main/java/org/apache/iotdb/db/queryengine/**" #queryengine
-  pull_request:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-      - "force_ci/**"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-      - "iotdb-core/datanode/src/main/java/org/apache/iotdb/db/queryengine/**" #queryengine
-  # allow manually run the action:
   workflow_dispatch:
 
 concurrency:
@@ -46,7 +18,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [HighPerformanceMode]
         cluster2: [HighPerformanceMode]
@@ -122,7 +96,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-single-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -135,7 +109,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster: [HighPerformanceMode]
         os: [ubuntu-latest]
@@ -229,7 +205,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-auto-basic-shard${{ matrix.shard }}-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}
@@ -242,7 +218,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [HighPerformanceMode]
         cluster2: [HighPerformanceMode]
@@ -337,7 +315,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-auto-enhanced-shard${{ matrix.shard }}-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -350,7 +328,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [HighPerformanceMode]
         cluster2: [HighPerformanceMode]
@@ -445,7 +425,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-manual-shard${{ matrix.shard }}-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -456,7 +436,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [ScalableSingleNodeMode]
         cluster2: [ScalableSingleNodeMode]
@@ -532,7 +514,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-arch-verification-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -543,7 +525,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [ScalableSingleNodeMode]
         cluster2: [ScalableSingleNodeMode]
@@ -619,7 +603,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-table-arch-verification-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -630,7 +614,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # do not use HighPerformanceMode here, otherwise some tests will cause the GH runner to receive a shutdown signal
         cluster1: [ScalableSingleNodeMode]
         cluster2: [ScalableSingleNodeMode]
@@ -706,7 +692,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-regression-consumer-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -717,7 +703,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # do not use HighPerformanceMode here, otherwise some tests will cause the GH runner to receive a shutdown signal
         cluster1: [ScalableSingleNodeMode]
         cluster2: [ScalableSingleNodeMode]
@@ -793,7 +781,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-regression-misc-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -806,7 +794,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster: [HighPerformanceMode]
         os: [ubuntu-latest]
@@ -900,7 +890,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-table-manual-basic-shard${{ matrix.shard }}-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}
@@ -913,7 +903,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster: [HighPerformanceMode]
         os: [ubuntu-latest]
@@ -1007,7 +999,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-table-manual-enhanced-shard${{ matrix.shard }}-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}
@@ -1018,11 +1010,13 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        java: [ 17 ]
-        cluster1: [ ScalableSingleNodeMode ]
-        cluster2: [ ScalableSingleNodeMode ]
-        cluster3: [ ScalableSingleNodeMode ]
-        os: [ ubuntu-latest ]
+        java:
+          - 21
+          - 25
+        cluster1: [ScalableSingleNodeMode]
+        cluster2: [ScalableSingleNodeMode]
+        cluster3: [ScalableSingleNodeMode]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -1094,7 +1088,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-triple-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}-${{ matrix.cluster3 }}

@@ -1,10 +1,7 @@
 name: Daily IT
 
 on:
-  schedule:
-    # Run at UTC 19:00 every day (CST 03:00 AM)
-    - cron: "0 19 * * *"
-
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -20,7 +17,9 @@ jobs:
       fail-fast: false
       max-parallel: 20
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
     runs-on: [self-hosted, iotdb]
     #      group: self-hosted
     #      labels: iotdb
@@ -43,7 +42,7 @@ jobs:
           -pl integration-test \
           -am -PDailyIT
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-java${{ matrix.java }}-${{ runner.os }}
@@ -54,7 +53,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
     runs-on: [self-hosted, iotdb]
     #      group: self-hosted
     #      labels: iotdb
@@ -79,7 +80,7 @@ jobs:
           -pl integration-test \
           -am -PTableSimpleIT
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: table-standalone-log-java${{ matrix.java }}-${{ runner.os }}
@@ -90,22 +91,12 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster1:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
-        cluster2:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-          ]
+        cluster1: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
+        cluster2: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode]
         os: [ubuntu-latest]
         exclude:
           - cluster1: LightWeightStandaloneMode
@@ -198,7 +189,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-single-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -209,16 +200,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -290,7 +276,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-auto-basic-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}
@@ -301,22 +287,12 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster1:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
-        cluster2:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-          ]
+        cluster1: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
+        cluster2: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode]
         os: [ubuntu-latest]
         exclude:
           - cluster1: LightWeightStandaloneMode
@@ -409,7 +385,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-auto-enhanced-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -420,22 +396,12 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster1:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
-        cluster2:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-          ]
+        cluster1: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
+        cluster2: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode]
         os: [ubuntu-latest]
         exclude:
           - cluster1: LightWeightStandaloneMode
@@ -528,7 +494,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-tree-manual-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -539,14 +505,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster1:
-          [
-            ScalableSingleNodeMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster1: [ScalableSingleNodeMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         cluster2: [ScalableSingleNodeMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -619,7 +582,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-arch-verification-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -630,7 +593,9 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
         cluster1: [ScalableSingleNodeMode]
         cluster2: [ScalableSingleNodeMode]
@@ -705,7 +670,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-table-arch-verification-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -716,14 +681,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # do not use HighPerformanceMode here, otherwise some tests will cause the GH runner to receive a shutdown signal
-        cluster1:
-          [
-            ScalableSingleNodeMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster1: [ScalableSingleNodeMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         cluster2: [ScalableSingleNodeMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -796,7 +758,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-regression-consumer-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -807,14 +769,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # do not use HighPerformanceMode here, otherwise some tests will cause the GH runner to receive a shutdown signal
-        cluster1:
-          [
-            ScalableSingleNodeMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster1: [ScalableSingleNodeMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         cluster2: [ScalableSingleNodeMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -887,7 +846,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-subscription-tree-regression-misc-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster1 }}-${{ matrix.cluster2 }}
@@ -898,16 +857,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -979,7 +933,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-table-manual-basic-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}
@@ -990,16 +944,11 @@ jobs:
       fail-fast: false
       max-parallel: 15
       matrix:
-        java: [17]
+        java:
+          - 21
+          - 25
         # StrongConsistencyClusterMode is ignored now because RatisConsensus has not been supported yet.
-        cluster:
-          [
-            LightWeightStandaloneMode,
-            ScalableSingleNodeMode,
-            HighPerformanceMode,
-            IoTConsensusV2BatchMode,
-            IoTConsensusV2StreamMode,
-          ]
+        cluster: [LightWeightStandaloneMode, ScalableSingleNodeMode, HighPerformanceMode, IoTConsensusV2BatchMode, IoTConsensusV2StreamMode]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -1071,7 +1020,7 @@ jobs:
           }
           retry
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cluster-log-dual-table-manual-enhanced-java${{ matrix.java }}-${{ runner.os }}-${{ matrix.cluster }}-${{ matrix.cluster }}

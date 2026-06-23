@@ -1,34 +1,6 @@
 # Shared client CI: run only affected language jobs via changed path detection.
 name: Multi-Language Client
 on:
-  push:
-    branches:
-      - master
-      - "rc/*"
-    paths:
-      - 'iotdb-client/pom.xml'
-      - 'iotdb-client/client-py/**'
-      - 'iotdb-client/client-cpp/**'
-      - 'iotdb-protocol/thrift-datanode/src/main/thrift/client.thrift'
-      - 'iotdb-protocol/thrift-commons/src/main/thrift/common.thrift'
-      - '.github/workflows/multi-language-client.yml'
-      - '.github/workflows/client-cpp-package.yml'
-      - '.github/scripts/package-client-cpp-*.sh'
-  pull_request:
-    branches:
-      - master
-      - "rc/*"
-      - 'force_ci/**'
-    paths:
-      - 'iotdb-client/pom.xml'
-      - 'iotdb-client/client-py/**'
-      - 'iotdb-client/client-cpp/**'
-      - 'iotdb-protocol/thrift-datanode/src/main/thrift/client.thrift'
-      - 'iotdb-protocol/thrift-commons/src/main/thrift/common.thrift'
-      - '.github/workflows/multi-language-client.yml'
-      - '.github/workflows/client-cpp-package.yml'
-      - '.github/scripts/package-client-cpp-*.sh'
-  # allow manually run the action:
   workflow_dispatch:
 
 
@@ -103,12 +75,15 @@ jobs:
   cpp:
     needs: changes
     # Full client validation (format + server build + verify) for C++ examples and SDK.
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.cpp == 'true'
+    if: always()
     strategy:
       fail-fast: false
       max-parallel: 15
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025-vs2026, macos-latest]
+        java:
+          - 21
+          - 25
     runs-on: ${{ matrix.os}}
 
     steps:
@@ -117,9 +92,9 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
       - name: Install CPP Dependencies (Ubuntu)
-        if: runner.os == 'Linux'
+        if: always()
         shell: bash
         run: |
           set -euxo pipefail
@@ -141,7 +116,7 @@ jobs:
           clang-format --version
       - name: Install CPP Dependencies (Mac)
         # remove some xcode to release disk space
-        if: runner.os == 'macOS'
+        if: always()
         shell: bash
         run: |
           brew install boost openssl llvm@17 bison
@@ -156,13 +131,13 @@ jobs:
           sudo rm -rf /Applications/Xcode_15.2.app
           sudo rm -rf /Applications/Xcode_15.3.app
       - name: Install CPP Dependencies (Windows)
-        if: runner.os == 'Windows'
+        if: always()
         run: |
           choco install winflexbison3 -y
           choco install boost-msvc-14.3 -y
           $boost_path = (Get-ChildItem -Path 'C:\local\' -Filter 'boost_*').FullName
           echo $boost_path >> $env:GITHUB_PATH
-          
+
           choco install openssl -y
           $sslPath = (Get-ChildItem 'C:\Program Files\OpenSSL*' -Directory | Select-Object -First 1).FullName
           echo "$sslPath\bin" >> $env:GITHUB_PATH
@@ -194,7 +169,7 @@ jobs:
             ./mvnw clean verify -P with-cpp -pl iotdb-client/client-cpp -am
           fi
       - name: Upload Artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: cpp-IT-${{ runner.os }}
@@ -203,7 +178,7 @@ jobs:
 
   go:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.go == 'true'
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
@@ -215,7 +190,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
       - name: Cache Maven packages
         uses: actions/cache@v5
         with:
@@ -232,14 +207,23 @@ jobs:
           cd iotdb-client-go
           make e2e_test_for_parent_git_repo e2e_test_clean_for_parent_git_repo
 
+    strategy:
+      matrix:
+        java:
+          - 21
+          - 25
+      fail-fast: false
   python:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.python == 'true'
+    if: always()
     strategy:
       fail-fast: false
       max-parallel: 15
       matrix:
         python: ['3.x']
+        java:
+          - 21
+          - 25
     runs-on: ${{ 'ubuntu-latest' }}
 
     steps:
@@ -251,7 +235,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
       - name: Cache Maven packages
         uses: actions/cache@v5
         with:
@@ -273,7 +257,7 @@ jobs:
       - name: Install IoTDB python client requirements
         run: pip3 install -r iotdb-client/client-py/requirements_dev.txt
       - name: Check code style
-        if: ${{ matrix.python == '3.x'}}
+        if: always()
         shell: bash
         run: black iotdb-client/client-py/ --check --diff
       - name: Integration test and test make package

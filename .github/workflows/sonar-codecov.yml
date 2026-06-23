@@ -4,33 +4,6 @@
 name: Sonar-Codecov
 
 on:
-  push:
-    branches:
-      - master
-      - "rel/*"
-      - "rc/*"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  pull_request:
-    branches:
-      - master
-      - "rel/*"
-      - "new_*"
-      - "rc/*"
-      - "force_ci/**"
-    paths-ignore:
-      - "docs/**"
-      - "site/**"
-      - "iotdb-client/client-cpp/**"
-      - ".github/workflows/client-cpp-package.yml"
-      - ".github/scripts/package-client-cpp-*.sh"
-      - ".github/workflows/multi-language-client.yml"
-  # allow manually run the action:
   workflow_dispatch:
 
 concurrency:
@@ -68,14 +41,14 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'apache/iotdb' || github.event_name == 'push'
+    if: always()
     steps:
       - uses: actions/checkout@v5
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ matrix.java }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
@@ -95,3 +68,9 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=${{ secrets.SONARCLOUD_TOKEN }} \
           -DskipTests -pl '!distribution,!integration-test' -am
+    strategy:
+      matrix:
+        java:
+          - 21
+          - 25
+      fail-fast: false
