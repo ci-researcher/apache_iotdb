@@ -95,7 +95,7 @@ jobs:
         distribution: corretto
         java-version: ${{ matrix.java }}
     - name: Install CPP Dependencies (Ubuntu)
-      if: runner.os == 'Linux'
+      if: always()
       shell: bash
       run: |
         set -euxo pipefail

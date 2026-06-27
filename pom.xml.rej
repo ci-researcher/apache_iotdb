@@ -1,0 +1,42 @@
+@@ -1,5 +1,6 @@
+ <!-- excerpt from root pom.xml -->
+ <properties>
++    <maven.compiler.release>11</maven.compiler.release>
+     <airlift-units.version>1.7</airlift-units.version>
+     <airlift.version>206</airlift.version>
+     <!--airlift-stats.version>235</airlift-stats.version-->
+@@ -50,21 +50,33 @@
+                 <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-compiler-plugin</artifactId>
++                    <version>3.13.0</version>
++                    <configuration>
++                        <release>${maven.compiler.release}</release>
++                        <compilerArgs>
++                            <arg>-proc:full</arg>
++                        </compilerArgs>
++                    </configuration>
+                 </plugin>
+                 <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-surefire-plugin</artifactId>
++                    <version>3.5.2</version>
++                    <configuration>
++                        <argLine>@{argLine} ${_JAVA_OPTIONS}</argLine>
++                    </configuration>
+                 </plugin>
+                 <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-javadoc-plugin</artifactId>
+                     <version>3.5.0</version>
+                     <configuration>
+                         <excludePackageNames>*thrift*</excludePackageNames>
+                         <notimestamp>true</notimestamp>
+                         <failOnError>false</failOnError>
++                        <release>${maven.compiler.release}</release>
+                     </configuration>
+                 </plugin>
+             </plugins>
+         </pluginManagement>
+     </build>
+\ No newline at end of line

@@ -1,0 +1,21 @@
+@@ -118,8 +118,18 @@
+     - name: Install CPP Dependencies (Mac)
+         # remove some xcode to release disk space
+-      if: always()
++      if: runner.os == 'macOS'
+       shell: bash
+       run: |
+         brew install boost openssl llvm@17 bison
+         ln -sf "$(brew --prefix llvm@17)/bin/clang-format" "$(brew --prefix)/bin/clang-format"
+         echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
++
++    - name: Install CPP Dependencies (Windows)
++      if: runner.os == 'Windows'
++      shell: powershell
++      run: |
++        choco install -y openssl boost-msvc-14.3 llvm --no-progress
++        $llvmBin = "C:\Program Files\LLVM\bin"
++        if (Test-Path "$llvmBin\clang-format.exe") {
++          "$llvmBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
++        }
+\ No newline at end of line
