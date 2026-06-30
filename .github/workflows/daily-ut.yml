@@ -5,6 +5,7 @@ on:
     # Run at UTC 19:00 every day (CST 03:00 AM)
     - cron: "0 19 * * *"
 
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
